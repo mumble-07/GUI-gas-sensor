@@ -1,5 +1,5 @@
-# Created by Inevitably Lefty at 7/26/2021
-# @author: TheGullibleKid
+# Created by TheGullibleKid at 7/26/2021
+# @author: mumble-07
 
 from tkinter import *
 

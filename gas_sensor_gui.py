@@ -3,21 +3,32 @@
 
 from tkinter import *
 
+#root as the main GUI window
+
 root =Tk()
 root.title("Gas Sensor GUI")
 root.geometry("500x300")
 
-windowTitle = Label(root, text="IED E-Nose System").grid(row=0, column=1)
+windowTitle = Label(root, text="IED E-Nose System", fg='red', font=('calibri', 30)).grid(row=0, column=2)
+
+#HEADER
+Label(root, text="GAS LEVEL: ", fg="green", font=("calibri", 15)).grid(row=1, column=1)
+
+#GAS LEVEL
+Label(root, text="SAFE", fg="green", font=("calibri", 15)).grid(row=2, column=1)
+
 #windowTitle.pack()
-#Text Inputs
-#had issues of multiple lines (ALWAYS REFACTOR!!!)
-testTry = Entry(root, width=50, borderwidth=5)
-testTry.grid(row=1, column=2)
+#had issues of multiple lines (ALWAYS REFACTOR NALANG!)
 
+#Function Button of Force Refresh
 def on_Click():
-    print(f" {testTry.get()}")
-#Buttons
+    print("Force Refresh")
 
-forceRefreshbtn = Button(root, text="Force Refresh", command= on_Click).grid(row=2, column=1)
+#Button Force Refresh
+forceRefreshbtn = Button(root, text="Force Refresh", command= on_Click, fg="green", bg="yellow").grid(row=5, column=3)
+
+
+
+
 
 root.mainloop()

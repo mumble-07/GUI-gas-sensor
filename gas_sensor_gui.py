@@ -52,7 +52,11 @@ def Reset_on_Click():
 forceRefreshbtn = Button(root, width=20, borderwidth=5, height= 2, text="Force Refresh", command= Reset_on_Click, fg="black", font=('calibri', 10), bg="yellow")
 forceRefreshbtn.grid(row=7, column=2)
 
+def close_window():
+  root.destroy()
+  print( "Window closed")
 
 
-
+#for clean up exit
+root.protocol("WM_DELETE_WINDOW", close_window)
 root.mainloop()

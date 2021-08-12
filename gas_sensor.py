@@ -53,7 +53,7 @@ chan = AnalogIn(ads,ADS.P0)
 
 #================= TGS-2600 Definition =================
 Vc = 5 #volts from data sheet
-RL = 500 #in ohm
+RL = 450 #in ohm RL min
 Ro = 24000 #in Ohm
 
 #Calculating volate

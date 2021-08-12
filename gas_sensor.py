@@ -20,21 +20,38 @@ chan = AnalogIn(ads,ADS.P0)
 
 
 #===============GASSES CURVE==================
-CO = float(1.11231525, -0.2216452, -0.26468)
-Methane = float(1.038534, -0.0832604, -0.0945188)
-Isobutane = float(0.740737467, -0.3019758439, -0.32013509)
-Hydrogen = float(0.623847109, -0.3137123394, -0.3528411122)
-Ethanol = float(0.613531029, -0.2820988119, -0.2738511645)
-# RO = float (10) #Initial value of RO
+# CO = float(1.11231525, -0.2216452, -0.26468)
+# Methane = float(1.038534, -0.0832604, -0.0945188)
+# Isobutane = float(0.740737467, -0.3019758439, -0.32013509)
+# Hydrogen = float(0.623847109, -0.3137123394, -0.3528411122)
+# Ethanol = float(0.613531029, -0.2820988119, -0.2738511645)
+# # RO = float (10) #Initial value of RO
 
 #=================GAS ====================
 
 # GAS_Air
-# GAS_Ethanol
-# GAS_Methane
-# GAS_Hydrogen
-# GAS_co
-# GAS_Isobutane
+# GAS_Ethanol_C2H5OH
+# GAS_Methane_CH4
+# GAS_Hydrogen_H2
+# GAS_CarbonMonoxide_CO
+# GAS_Isobutane_C4H1O
+
+#=================CALCULATE R = Rs/Ro = BASE DATA  ====================
+#SENSOR corrections:
+#Vc = total circuit voltage = 5.0 ±0.2 V
+#VH = heater voltage (same as Vc)
+#Vout = V = measurement output voltage. Depend on Rs.
+#V0 = Vout at reference level of CH4, H2O and temperature (ideally zero gas influence and only related with RL)
+#RL = resistor in series with sensor; can vary among sensors
+#Rs = resistance in sensor; affected by gas(es)
+#R0 = background reference resistance. Ideally same as RL, but in practice based on V0.
+#Rs/R0 
+#Rs = ((Vc-V)/V)*RL = (Vc/V – 1)*RL
+#R0 = (Vc/V0 – 1)*RL
+#Rs/R0 = (Vc/V – 1) / (Vc/V0 – 1)
+
+
+
 
 # TGS-2600 Definition
 Vc = 5 #volts from data sheet
@@ -54,9 +71,6 @@ print 'RS: ', Rs
 Rs_Ro = Rs / Ro
 Rs_Ro = round(Rs_Ro,2)
 print "Rs_Ro: ", Rs_Ro
-
-
-
 
 #=======CATEGORY==========#
 # Interpreting values: #

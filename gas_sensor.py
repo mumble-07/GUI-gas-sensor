@@ -36,8 +36,9 @@ chan = AnalogIn(ads,ADS.P0)
 # GAS_CarbonMonoxide_CO
 # GAS_Isobutane_C4H1O
 
-#=================CALCULATE R = Rs/Ro = BASE DATA  ====================
+#================= CALCULATE R = Rs/Ro = BASE DATA ====================
 #SENSOR corrections:
+#detection range: 1-100ppm
 #Vc = total circuit voltage = 5.0 ±0.2 V
 #VH = heater voltage (same as Vc)
 #Vout = V = measurement output voltage. Depend on Rs.
@@ -50,12 +51,9 @@ chan = AnalogIn(ads,ADS.P0)
 #R0 = (Vc/V0 – 1)*RL
 #Rs/R0 = (Vc/V – 1) / (Vc/V0 – 1)
 
-
-
-
-# TGS-2600 Definition
+#================= TGS-2600 Definition =================
 Vc = 5 #volts from data sheet
-RL = 700 #in ohm
+RL = 500 #in ohm
 Ro = 24000 #in Ohm
 
 #Calculating volate

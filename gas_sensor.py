@@ -55,7 +55,16 @@ Rs_Ro = Rs / Ro
 Rs_Ro = round(Rs_Ro,2)
 print "Rs_Ro: ", Rs_Ro
 
-#=======CATEGORY==========
+
+
+
+#=======CATEGORY==========#
+# Interpreting values: #
+# 1=Fresh; 
+# 0.9=Clean; 
+# 0.8+0.7=Normal; 
+# 0.6+0.5=Foul;
+# 0.4+0.3+0.2+0.1+0=Pollute
 
 if Rs_Ro >= 1:
   Rs_Ro_stage = "Fresh air"

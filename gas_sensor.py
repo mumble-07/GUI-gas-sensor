@@ -25,10 +25,9 @@ chan = AnalogIn(ads,ADS.P0)
 # Isobutane = float(0.740737467, -0.3019758439, -0.32013509)
 # Hydrogen = float(0.623847109, -0.3137123394, -0.3528411122)
 # Ethanol = float(0.613531029, -0.2820988119, -0.2738511645)
-# # RO = float (10) #Initial value of RO
+# RO = float (10) #Initial value of RO
 
 #=================GAS ====================
-
 # GAS_Air
 # GAS_Ethanol_C2H5OH
 # GAS_Methane_CH4
@@ -79,9 +78,6 @@ def mq_resistance_calculation(raw_adc):
   return ((float(RL*(1023-raw_adc)/raw_adc)))
 
 
-
-
-
 calibration_sample_times = 50
 mq_pin = "" #analog channel
 
@@ -94,9 +90,6 @@ def MQ_calibration(mq_pin):
 val = val/calibration_sample_times
 
 return val
-
-
-  
 
 
 

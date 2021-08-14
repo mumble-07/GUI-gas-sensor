@@ -55,10 +55,10 @@ chan = AnalogIn(ads,ADS.P0)
 Vc = 5 #volts from data sheet
 RL = 450 #in ohm RL min
 Ro = 24000 #in Ohm
-
+Ro_clean_air_factor = 
 #Calculating volate
 
-volts = (chan * 3.3) / float(1023)
+volts = (chan * 3.3) / float (1023)
 print 'volts:', volts
 
 #Calculating Rs of TGS 2600
@@ -69,6 +69,37 @@ print 'RS: ', Rs
 Rs_Ro = Rs / Ro
 Rs_Ro = round(Rs_Ro,2)
 print "Rs_Ro: ", Rs_Ro
+
+
+
+
+#=======CALIBRATION SAMPLE TIMES==========#
+def mq_resistance_calculation(raw_adc):
+  raw_adc = chan
+  return ((float(RL*(1023-raw_adc)/raw_adc)))
+
+
+
+
+
+calibration_sample_times = 50
+mq_pin = "" #analog channel
+
+def MQ_calibration(mq_pin):
+  int = i
+  val = float(0)
+  for [i=0, i<calibration_sample_times; i++]
+    val += mq_resistance_calculation
+
+val = val/calibration_sample_times
+
+return val
+
+
+  
+
+
+
 
 #=======CATEGORY==========#
 # Interpreting values: #

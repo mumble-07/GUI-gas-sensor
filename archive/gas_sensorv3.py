@@ -15,7 +15,7 @@ import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
 
 i2c =busio.I2C(board.SCL,board.SDA)
-ads = ADS.ADS1015(i2c)
+ads = ADS.ADS1115(i2c)
 chan = AnalogIn(ads,ADS.P0)
 
 
@@ -25,9 +25,10 @@ chan = AnalogIn(ads,ADS.P0)
 # Isobutane = float(0.740737467, -0.3019758439, -0.32013509)
 # Hydrogen = float(0.623847109, -0.3137123394, -0.3528411122)
 # Ethanol = float(0.613531029, -0.2820988119, -0.2738511645)
-# RO = float (10) #Initial value of RO
+# # RO = float (10) #Initial value of RO
 
 #=================GAS ====================
+
 # GAS_Air
 # GAS_Ethanol_C2H5OH
 # GAS_Methane_CH4
@@ -52,44 +53,46 @@ chan = AnalogIn(ads,ADS.P0)
 
 #================= TGS-2600 Definition =================
 Vc = 5 #volts from data sheet
-RL = 450 #in ohm RL min
-Ro = 24000 #in Ohm
-Ro_clean_air_factor = 
+RL = 20000 #in ohm RL min
+Ro = 41000 #in Ohm
+Ro_clean_air_factor = 1
 #Calculating volate
 
-volts = (chan.value * 5) / float (37750)
-print 'volts:', volts
 
-#Calculating Rs of TGS 2600
-Rs = ((Vc*RL)/volts)-RL
-print 'RS: ', Rs
+def rs_read_sensor (gas_sense, voltage, RL)
 
 #Calculating RS/RO ratio
 Rs_Ro = Rs / Ro
 Rs_Ro = round(Rs_Ro,2)
-print "Rs_Ro: ", Rs_Ro
-
+print ("Rs_Ro: ", Rs_Ro)
 
 
 
 #=======CALIBRATION SAMPLE TIMES==========#
 def mq_resistance_calculation(raw_adc):
-  raw_adc = chan.value
-  return ((float(RL*(1023-raw_adc)/raw_adc)))
+    raw_adc = chan.value
+    return ((float(RL*(37752-raw_adc)/raw_adc)))
 
 
-calibration_sample_times = 50
-mq_pin = "" #analog channel
+
+
+
+
+
+
 
 def MQ_calibration(mq_pin):
-  int = i
-  val = float(0)
-  for [i=0, i<calibration_sample_times; i++]
-    val += mq_resistance_calculation
+    calibration_sample_times = 50
+    val = float(0)
+    for i in range (1,calibration_sample_times):
+        val += mq_resistance_calculation
+        sleep(1)
 
-val = val/calibration_sample_times
+    val = val/calibration_sample_times
+    return val
 
-return val
+
+  
 
 
 
@@ -112,3 +115,14 @@ elif Rs_Ro < 0.7 and Rs_Ro >= 0.5:
   Rs_Ro_stage = ""
 elif Rs_Ro < 0.5:
   Rs_Ro_stage = ""
+  
+print (Rs_Ro_stage)
+
+
+
+def rs_read_sensor (gas_sense, voltage, RL)
+
+  volts = (chan.value * 5) / 37750
+  print ('volts:', volts)
+  Rs = ((Vc*RL)/volts)-RL
+  print ('RS: ', Rs)

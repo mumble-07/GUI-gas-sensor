@@ -126,3 +126,5 @@ elif Rs_Ro < 0.5:
   
 print (Rs_Ro_stage)
 
+testing os.O_RDONLY
+

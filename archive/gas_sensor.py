@@ -15,60 +15,100 @@ import adafruit_ads1x15.ads1115 as ADS
 from adafruit_ads1x15.analog_in import AnalogIn
 
 i2c =busio.I2C(board.SCL,board.SDA)
-ads = ADS.ADS1115(i2c)
+ads = ADS.ADS1015(i2c)
 chan = AnalogIn(ads,ADS.P0)
 
-TGS_2600 = 1 #use to declare sensor type
-TGS_2602 = 2 
-TGS_2611 = 3
-TGS_2620 = 4
-#================= Constants =================
-Vc = 5 #volts from data sheet
-time_interval = .2 #in secs
-iteration = 5 #times
+
+#===============GASSES CURVE==================
+# CO = float(1.11231525, -0.2216452, -0.26468)
+# Methane = float(1.038534, -0.0832604, -0.0945188)
+# Isobutane = float(0.740737467, -0.3019758439, -0.32013509)
+# Hydrogen = float(0.623847109, -0.3137123394, -0.3528411122)
+# Ethanol = float(0.613531029, -0.2820988119, -0.2738511645)
+# RO = float (10) #Initial value of RO
+
+#=================GAS ====================
+# GAS_Air
+# GAS_Ethanol_C2H5OH
+# GAS_Methane_CH4
+# GAS_Hydrogen_H2
+# GAS_CarbonMonoxide_CO
+# GAS_Isobutane_C4H1O
+
+#================= CALCULATE R = Rs/Ro = BASE DATA ====================
+#SENSOR corrections:
+#detection range: 1-100ppm
+#Vc = total circuit voltage = 5.0 ±0.2 V
+#VH = heater voltage (same as Vc)
+#Vout = V = measurement output voltage. Depend on Rs.
+#V0 = Vout at reference level of CH4, H2O and temperature (ideally zero gas influence and only related with RL)
+#RL = resistor in series with sensor; can vary among sensors
+#Rs = resistance in sensor; affected by gas(es)
+#R0 = background reference resistance. Ideally same as RL, but in practice based on V0.
+#Rs/R0 
+#Rs = ((Vc-V)/V)*RL = (Vc/V – 1)*RL
+#R0 = (Vc/V0 – 1)*RL
+#Rs/R0 = (Vc/V – 1) / (Vc/V0 – 1)
+
 #================= TGS-2600 Definition =================
-RL_2600 = 20000 #in ohm RL min
-Ro_2600 = 41000 #in Ohm
-Ro_factor_2600 = 1
-#================= TGS-2602 Definition =================
-RL_2602 = 4700 #in ohm RL min
-Ro_2602 = 41000 #in Ohm
-Ro_factor_2602 = 1
-#================= TGS-2611 Definition =================
-RL_2611 = 4700 #in ohm RL min
-Ro_2611 = 41000 #in Ohm
-Ro_factor_2611 = 9
-#================= TGS-2620 Definition =================
-RL_2620 = 4700 #in ohm RL min
-Ro_2620 = 41000 #in Ohm
-Ro_factor_2620 = 20
+Vc = 5 #volts from data sheet
+RL = 450 #in ohm RL min
+Ro = 24000 #in Ohm
+Ro_clean_air_factor = 
+#Calculating volate
+
+volts = (chan.value * 5) / float (37750)
+print 'volts:', volts
+
+#Calculating Rs of TGS 2600
+Rs = ((Vc*RL)/volts)-RL
+print 'RS: ', Rs
+
+#Calculating RS/RO ratio
+Rs_Ro = Rs / Ro
+Rs_Ro = round(Rs_Ro,2)
+print "Rs_Ro: ", Rs_Ro
 
 
-def rs_read_sensor (gaspin, sv, rl, ti, times):
-  Rs_sum = 0
-  i_times = 0
-  while times > i_times:
-    if gaspin == 1:
-        tgs_value = AnalogIn(ads,ADS.P0)
-    elif gaspin == 2:
-        tgs_value = AnalogIn(ads,ADS.P1)
-    elif gaspin ==3:
-        tgs_value = AnalogIn(ads,ADS.P2)
-    elif gaspin == 4:
-        tgs_value = AnalogIn(ads,ADS.P3)        
-        
-    Rs = ((sv*rl)/((tgs_value.value * sv) / 37750))-rl
-    Rs_sum = Rs_sum + Rs
-    sleep(ti)
-    i_times = i_times + 1
-    #print (Rs," ", Rs_sum)
- 
-  Ave_Rs = Rs_sum/times
-  
-  return Ave_Rs
-Rs_read_2600 = rs_read_sensor (TGS_2600, Vc, RL_2600, time_interval, iteration)
-Rs_read_2602 = rs_read_sensor (TGS_2602, Vc, RL_2602, time_interval, iteration)
-Rs_read_2611 = rs_read_sensor (TGS_2611, Vc, RL_2611, time_interval, iteration)
-Rs_read_2620 = rs_read_sensor (TGS_2620, Vc, RL_2620, time_interval, iteration)
-print ("2600: ", Rs_read_2600, "2602: ", Rs_read_2602, "2611: ", Rs_read_2611, "2620: ", Rs_read_2620)
 
+
+#=======CALIBRATION SAMPLE TIMES==========#
+def mq_resistance_calculation(raw_adc):
+  raw_adc = chan.value
+  return ((float(RL*(1023-raw_adc)/raw_adc)))
+
+
+calibration_sample_times = 50
+mq_pin = "" #analog channel
+
+def MQ_calibration(mq_pin):
+  int = i
+  val = float(0)
+  for [i=0, i<calibration_sample_times; i++]
+    val += mq_resistance_calculation
+
+val = val/calibration_sample_times
+
+return val
+
+
+
+
+#=======CATEGORY==========#
+# Interpreting values: #
+# 1=Fresh; 
+# 0.9=Clean; 
+# 0.8+0.7=Normal; 
+# 0.6+0.5=Foul;
+# 0.4+0.3+0.2+0.1+0=Pollute
+
+if Rs_Ro >= 1:
+  Rs_Ro_stage = "Fresh air"
+elif Rs_Ro < 1 and Rs_Ro >= 0.9:
+  Rs_Ro_stage = ""
+elif Rs_Ro < 0.9 and Rs_Ro >= 0.7:
+  Rs_Ro_stage = ""
+elif Rs_Ro < 0.7 and Rs_Ro >= 0.5:
+  Rs_Ro_stage = ""
+elif Rs_Ro < 0.5:
+  Rs_Ro_stage = ""

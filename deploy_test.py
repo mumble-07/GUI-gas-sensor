@@ -28,20 +28,22 @@ X_train, X_validation, Y_train, Y_valdiation = train_test_split(x, y, test_size=
 #===>>> test size is ratio e.g. ).50 test size meaning 50% to  testing, 50% to training
 #===>>> random_state = randomly it will choose the data to be part of percentage testing and percentage training
 
-model = SVC(gamme = "auto")
 
-model.fit(X_train, Y_train)
 
-import pickle
+#========== MODEL IS TRAINING PART==========================
+model = SVC(gamme = "auto") #SVS = Support vector Classifier, some of the tuning parameters
 
-fileName = 'import model.pkl file here'
+model.fit(X_train, Y_train) #----> it means we are going to train our model
+print ("YEHEY! Training Complete")
+import pickle #we are going to save our model in this pickle
 
-pickle.dump(model, open(fileName, 'wb'))
+fileName = 'import model.pkl ' #import model.pkl file here to be saved in this file local directory tung model data
 
-loaded_model = pickle.load (open(fileName, 'rb'))
-result = loaded_model.score(X_validation, Y_valdiation)
-print (result)
-
-value = [[inser dummy values form csv or manual data]]
-predictions = loaded.model.predict.value
+pickle.dump(model, open(fileName, 'wb')) #-> write binary 
+print ("Model  is saved!")
+loaded_model = pickle.load (open(fileName, 'rb')) #===> read binary
+result = loaded_model.score(X_validation, Y_valdiation) #====> score will be helpful in validating and valuating the model will help in knowing the performing score of our model
+print (result) #model score/performance
+value = [[inser dummy values form csv or manual data]] #insert prediction static values
+predictions = loaded.model.predict(value)
 print (predictions[0])

@@ -1,3 +1,6 @@
+# Created by TheGullibleKid at 8/27/2021
+# @author: mumble-07
+
 from itertools import Predicate
 from pandas import read_csv
 from sklearn.model_selection import  train_test_split #we can ale to split the data for training and validation

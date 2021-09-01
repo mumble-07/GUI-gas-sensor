@@ -1,7 +1,7 @@
 # Created by TheGullibleKid at 8/27/2021
 # @author: mumble-07
 
-from itertools import Predicate
+from math import gamma
 from pandas import read_csv
 from sklearn.model_selection import  train_test_split #we can ale to split the data for training and validation
 from sklearn.svm import SVC #pip install scikit-learn
@@ -15,13 +15,13 @@ names =['CO', 'Toluene', 'Ammonia','Methane', 'Ethanol', 'Isobutane'] #==> speci
 #final column will be a different variable since dito yung parang result or status. 
 # It will be a different variable dependent on the independent variables
 #====================================================================================
-dataset = read_csv(fileName, name = names) 
+dataset = read_csv(fileName, names = names) 
 
 #============================SEGREGATION OF DATASET PART======================#
 
 array = dataset.values 
 
-x = array [:,0:6] # ==> 0:N **means going to take the top n data for X. ito yung results
+x = array [:,0:5] # ==> 0:N **means going to take the top n data for X. ito yung results
 y = array [:,6] #For y data 
 #========================X is going to be the input and y is going to be the output============
 
@@ -35,7 +35,7 @@ X_train, X_validation, Y_train, Y_valdiation = train_test_split(x, y, test_size=
 
 
 #========== MODEL IS TRAINING PART==========================
-model = SVC(gamme = "auto") #SVS = Support vector Classifier, some of the tuning parameters
+model = SVC(gamma = "auto") #SVS = Support vector Classifier, some of the tuning parameters
 
 model.fit(X_train, Y_train) #----> it means we are going to train our model
 print ("YEHEY! Training Complete")

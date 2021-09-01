@@ -3,8 +3,9 @@ from pandas import read_csv
 from sklearn.model_selection import  train_test_split #we can ale to split the data for training and validation
 from sklearn.svm import SVC #pip install scikit-learn
 
-fileName = "log.csv"
-names =[''] #==> specifiy columns here 
+fileName = "ppm.csv"
+
+names =['CO', 'Toluene', 'Ammonia','Methane', 'Ethanol', 'Isobutane'] #==> specifiy columns here 
 
 #====================================================================================
 # reading the data set, need natin to separate yung datas into different variables
@@ -37,13 +38,13 @@ model.fit(X_train, Y_train) #----> it means we are going to train our model
 print ("YEHEY! Training Complete")
 import pickle #we are going to save our model in this pickle
 
-fileName = 'import model.pkl ' #import model.pkl file here to be saved in this file local directory tung model data
+fileName = 'mode_test.pkl ' #import model.pkl file here to be saved in this file local directory tung model data
 
 pickle.dump(model, open(fileName, 'wb')) #-> write binary 
 print ("Model  is saved!")
 loaded_model = pickle.load (open(fileName, 'rb')) #===> read binary
 result = loaded_model.score(X_validation, Y_valdiation) #====> score will be helpful in validating and valuating the model will help in knowing the performing score of our model
 print (result) #model score/performance
-value = [[inser dummy values form csv or manual data]] #insert prediction static values
+value = [[1.075, 2.373, 5.164, 15.627, 60.72, 17.507]] #insert prediction static values
 predictions = loaded.model.predict(value)
 print (predictions[0])

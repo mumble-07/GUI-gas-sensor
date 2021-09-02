@@ -5,6 +5,7 @@ from math import gamma
 from pandas import read_csv
 from sklearn.model_selection import  train_test_split #we can ale to split the data for training and validation
 from sklearn.svm import SVC #pip install scikit-learn
+import numpy as np
 
 fileName = "ppm.csv"
 

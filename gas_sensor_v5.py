@@ -63,7 +63,7 @@ def Calibration_sensor_read():
     Ro_read[2] = rs_read_sensor (TGS_2611, Vc, RL_2611, Calib_time_interval, Calib_iteration) #Rs_read_2611
     Ro_read[3] = rs_read_sensor (TGS_2620, Vc, RL_2620, Calib_time_interval, Calib_iteration) #Rs_read_2620
     np.savetxt("/home/pi/Desktop/Ro_values.csv", Ro_read, delimiter=",")
-    Ro_Value = np.loadtxt("/home/pi/Desktop/Ro_values.csv", delimiter=",")
+    Ro_Value = np.loadtxt("/home/pi/Desktop/gas_/Ro_values.csv", delimiter=",")
     print("New Ro Values", Ro_Value)
 
 #================= RS CALCULATION =================
@@ -132,6 +132,23 @@ def gas_write():
     return np.around(ppm_gas, 3)
 
 
+def csv_log(gas_array):
+
+    ppm_gasarray = np.array([0,0,0,0,0,0],dtype=float )
+    ppm_gasarray = gas_array
+
+    if ppm_gasarray[0] is not None and ppm_gasarray[1] is not None and ppm_gasarray[2] is not None and ppm_gasarray[3] is not None and ppm_gasarray[4] is not None and ppm_gasarray[5] is not None:
+        log = open("/home/pi/Desktop/log.csv","a")  
+        log.write("PPM" +" , " + "{0:0.3f}".format(ppm_gasarray[0]) +" , " + "{0:0.3f}".format(ppm_gasarray[1]) + " , "+ "{0:0.3f}".format(ppm_gasarray[2])+ " , "+ "{0:0.3f}".format(ppm_gasarray[3])+ " , "+ "{0:0.3f}".format(ppm_gasarray[4])+ " , " + "{0:0.3f}".format(ppm_gasarray[5])+ " , ")
+        
+    else:
+        log =open("/home/pi/Desktop/log.csv","a") 
+        log.write("NAN   "+ ",")
+        
+    log.write(datetime.today().strftime("%m-%d-%Y %H:%M:%S")+ "\n")
+    log.close()
+    sleep(0.1)
+
 # GUI FUNCTIONS
 
 
@@ -169,6 +186,7 @@ def screen_display():
     forceRefreshbtn = Button(root, width=20, borderwidth=5, height= 2, text="CALIBRATION", command= Calibration_sensor_read, fg="black", font=('calibri', 10), bg="yellow")
     forceRefreshbtn.grid(row=8, column=2)
     
+    #==========FIREBASE==========================
     
     firebase_data = firebase.FirebaseApplication("https://gassensor-db-default-rtdb.firebaseio.com/", None)
     
@@ -188,18 +206,22 @@ def screen_display():
     
     result = firebase_data.put('/gassensor-db-default-rtdb/gasdata:',"-MhvYPVvC3476qBwCADx", data)
     print(result)
-        
-    if ppm_gasarray[0] is not None and ppm_gasarray[1] is not None and ppm_gasarray[2] is not None and ppm_gasarray[3] is not None and ppm_gasarray[4] is not None and ppm_gasarray[5] is not None:
-        log = open("/home/pi/Desktop/log.csv","a")  
-        log.write("V" + " , " +"{0:0.3f}".format(volts[0]) +" , "+"{0:0.3f}".format(volts[1]) +" , "+"{0:0.3f}".format(volts[2]) +" , "+"{0:0.3f}".format(volts[3]) +" , " +"RS" + " , " +"{0:0.3f}".format(rs[0]) +" , "+"{0:0.3f}".format(rs[1]) +" , "+"{0:0.3f}".format(rs[2]) +" , "+"{0:0.3f}".format(rs[3]) +" , " + "PPM" +" , " + "{0:0.3f}".format(ppm_gasarray[0]) +" , " + "{0:0.3f}".format(ppm_gasarray[1]) + " , "+ "{0:0.3f}".format(ppm_gasarray[2])+ " , "+ "{0:0.3f}".format(ppm_gasarray[3])+ " , "+ "{0:0.3f}".format(ppm_gasarray[4])+ " , " + "{0:0.3f}".format(ppm_gasarray[5])+ " , ")
+
+     #=============LOG==============   
+
+    # if ppm_gasarray[0] is not None and ppm_gasarray[1] is not None and ppm_gasarray[2] is not None and ppm_gasarray[3] is not None and ppm_gasarray[4] is not None and ppm_gasarray[5] is not None:
+    #     log = open("/home/pi/Desktop/log.csv","a")  
+    #     log.write("V" + " , " +"{0:0.3f}".format(volts[0]) +" , "+"{0:0.3f}".format(volts[1]) +" , "+"{0:0.3f}".format(volts[2]) +" , "+"{0:0.3f}".format(volts[3]) +" , " +"RS" + " , " +"{0:0.3f}".format(rs[0]) +" , "+"{0:0.3f}".format(rs[1]) +" , "+"{0:0.3f}".format(rs[2]) +" , "+"{0:0.3f}".format(rs[3]) +" , " + "PPM" +" , " + "{0:0.3f}".format(ppm_gasarray[0]) +" , " + "{0:0.3f}".format(ppm_gasarray[1]) + " , "+ "{0:0.3f}".format(ppm_gasarray[2])+ " , "+ "{0:0.3f}".format(ppm_gasarray[3])+ " , "+ "{0:0.3f}".format(ppm_gasarray[4])+ " , " + "{0:0.3f}".format(ppm_gasarray[5])+ " , ")
             
-    else:
-        log =open("/home/pi/Desktop/log.csv","a") 
-        log.write("NAN   "+ ",")
+    # else:
+    #     log =open("/home/pi/Desktop/log.csv","a") 
+    #     log.write("NAN   "+ ",")
             
-    log.write(datetime.today().strftime("%m-%d-%Y %H:%M:%S")+ "\n")
-    log.close()
-    sleep(0.1)
+    # log.write(datetime.today().strftime("%m-%d-%Y %H:%M:%S")+ "\n")
+    # log.close()
+    # sleep(0.1)
+
+    csv_log(ppm_gasarray)
     
     GL_CO.after(100, screen_display)
     
@@ -236,4 +258,5 @@ GL_CO.after(500, screen_display)
         
 #for clean up exit
 root.protocol("WM_DELETE_WINDOW", close_window)
-root.mainloop()    
+root.mainloop()
+

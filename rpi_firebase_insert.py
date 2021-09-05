@@ -1,3 +1,6 @@
+# Created by TheGullibleKid at 8/25/2021
+# @author: mumble-07
+
 from firebase import firebase
 
 # firebase = firebase.FirebaseApplication("https://gassensor-database-default-rtdb.firebaseio.com/", None)

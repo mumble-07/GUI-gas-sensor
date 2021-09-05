@@ -4,7 +4,7 @@ rpi python GUI for gas sensors project
 Latest files: 
 
 > For GUI and gas sensor code: 
->>>>> gas_sensor_v5.py
+>>>>> gas_sensor_v6.py
 
 > For RPI Firebase connection to android app: 
 >>>>> rpi_firebase_insert.py
@@ -15,7 +15,11 @@ Latest files:
 > For Machine Learning: 
 >>>>> deploy_test.py
 
+> For Final Code file with Gas sensor display, Machine learning, Machine training and Machine prediction : 
+>>>>> gas_sensor_v6_ML_IF.py
+
+
 =======================END====================
 
 # Created by TheGullibleKid at 8/09/2021
-# @author: mumble-07
+

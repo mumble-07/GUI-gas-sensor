@@ -55,13 +55,14 @@ Ro_factor_2620 = 20
 gas_ethanol = np.array([321.229, -1.57881], dtype=float)
 #================= Functions =================
 
-#================= RO CALIBRATION =================
+#================= RO CALIBRATION --> RS_READ CALCULATION =================
 def Calibration_sensor_read():
-    Ro_read= np.array([0,0,0,0],dtype=float)
+    Ro_read = np.array([0,0,0,0],dtype=float)
     Ro_read[0] = rs_read_sensor (TGS_2600, Vc, RL_2600, Calib_time_interval, Calib_iteration) #Rs_read_2600
     Ro_read[1] = rs_read_sensor (TGS_2602, Vc, RL_2602, Calib_time_interval, Calib_iteration) #Rs_read_2602
     Ro_read[2] = rs_read_sensor (TGS_2611, Vc, RL_2611, Calib_time_interval, Calib_iteration) #Rs_read_2611
     Ro_read[3] = rs_read_sensor (TGS_2620, Vc, RL_2620, Calib_time_interval, Calib_iteration) #Rs_read_2620
+    
     np.savetxt("/home/pi/Desktop/Ro_values.csv", Ro_read, delimiter=",")
     Ro_Value = np.loadtxt("/home/pi/Desktop/gas_sensor_files/Ro_values.csv", delimiter=",")
     print("New Ro Values", Ro_Value)
@@ -75,7 +76,7 @@ def sensor_read():
     Rs_read[3] = rs_read_sensor (TGS_2620, Vc, RL_2620, time_interval, iteration) #Rs_read_2620
     return Rs_read
 
-
+#================= RS READ CALCULATION  =================
 def rs_read_sensor (gaspin, sv, rl, ti, times):
     Rs_sum = 0
     i_times = 0
@@ -99,6 +100,7 @@ def rs_read_sensor (gaspin, sv, rl, ti, times):
   
     return Ave_Rs
 
+#=================VOLTAGE READ =================
 def v_read_sensor (RSarray, sv):
     rs = RSarray
       
@@ -107,8 +109,7 @@ def v_read_sensor (RSarray, sv):
     Ave_volts[1]  = (sv*4700)/(RSarray[1]+4700)
     Ave_volts[2]  = (sv*4700)/(RSarray[2]+4700)
     Ave_volts[3]  = (sv*4700)/(RSarray[3]+4700)
-    
-  
+      
     return Ave_volts
 
 #================= SENSOR CURVES =================
@@ -116,7 +117,6 @@ def gas_ppm (rs, ro, gas_type, ro_factor):
     
     ro_prime = ro * math.exp(math.log(gas_type[0]/ro_factor)/gas_type[1])
     ppm = gas_type[0] * pow((rs/ro_prime), gas_type[1])
-    
     
     return ppm
 
@@ -131,17 +131,32 @@ def gas_write():
     ppm_gas[4] = gas_ppm (Rs_read_value[3], Ro_2620, gas_ethanol, Ro_factor_2620)
     return np.around(ppm_gas, 3)
 
+#================= CSV LOG (PPM READINGS) =================
+def csv_log(gas_array):
 
-# GUI FUNCTIONS
+    ppm_gasarray = np.array([0,0,0,0,0,0],dtype=float )
+    ppm_gasarray = gas_array
 
+    if ppm_gasarray[0] is not None and ppm_gasarray[1] is not None and ppm_gasarray[2] is not None and ppm_gasarray[3] is not None and ppm_gasarray[4] is not None and ppm_gasarray[5] is not None:
+        log = open("/home/pi/Desktop/gas_sensor_files/log.csv","a")  
+        log.write("PPM" +" , " + "{0:0.3f}".format(ppm_gasarray[0]) +" , " + "{0:0.3f}".format(ppm_gasarray[1]) + " , "+ "{0:0.3f}".format(ppm_gasarray[2])+ " , "+ "{0:0.3f}".format(ppm_gasarray[3])+ " , "+ "{0:0.3f}".format(ppm_gasarray[4])+ " , " + "{0:0.3f}".format(ppm_gasarray[5])+ " , ")
+        
+    else:
+        log =open("/home/pi/Desktop/gas_sensor_files/log.csv","a") 
+        log.write("NAN   "+ ",")
+        
+    log.write(datetime.today().strftime("%m-%d-%Y %H:%M:%S")+ "\n")
+    log.close()
+    sleep(0.1)
 
+#================= GUI FUNCTIONS =================
 def close_window():
     root.destroy()
     print( "Window closed")
 
 def screen_display():
     rs = sensor_read()
-    ppm_gasarray= gas_write()
+    ppm_gasarray = gas_write()
     volts= v_read_sensor(rs,Vc)
     
     raw_CO = ppm_gasarray[0]
@@ -166,13 +181,16 @@ def screen_display():
     GL_Isobutane=Label(root, text= raw_Isobutane, fg='blue', font=('calibri', 12), anchor='center')
     GL_Isobutane.grid(row=6, column=3)
     
+    ###======CALIBRATION // ML // TRAINING // PREDICTION =============###
     forceRefreshbtn = Button(root, width=20, borderwidth=5, height= 2, text="CALIBRATION", command= Calibration_sensor_read, fg="black", font=('calibri', 10), bg="yellow")
     forceRefreshbtn.grid(row=8, column=2)
+
+    forceRefreshbtn = Button(root, width=20, borderwidth=5, height= 2, text="START LEARNING", command= machine_learning, fg="black", font=('calibri', 10), bg="yellow")
+    forceRefreshbtn.grid(row=8, column=3)
     
+#================= FIRE BASE DATA =================
     
     firebase_data = firebase.FirebaseApplication("https://gassensor-db-default-rtdb.firebaseio.com/", None)
-    
-    
     
     data = {
         'Ammonia': raw_Ammonia,
@@ -188,27 +206,80 @@ def screen_display():
     
     result = firebase_data.put('/gassensor-db-default-rtdb/gasdata:',"-MhvYPVvC3476qBwCADx", data)
     print(result)
-        
-    if ppm_gasarray[0] is not None and ppm_gasarray[1] is not None and ppm_gasarray[2] is not None and ppm_gasarray[3] is not None and ppm_gasarray[4] is not None and ppm_gasarray[5] is not None:
-        log = open("/home/pi/Desktop/gas_sensor_files/log.csv","a")  
-        log.write("V" + " , " +"{0:0.3f}".format(volts[0]) +" , "+"{0:0.3f}".format(volts[1]) +" , "+"{0:0.3f}".format(volts[2]) +" , "+"{0:0.3f}".format(volts[3]) +" , " +"RS" + " , " +"{0:0.3f}".format(rs[0]) +" , "+"{0:0.3f}".format(rs[1]) +" , "+"{0:0.3f}".format(rs[2]) +" , "+"{0:0.3f}".format(rs[3]) +" , " + "PPM" +" , " + "{0:0.3f}".format(ppm_gasarray[0]) +" , " + "{0:0.3f}".format(ppm_gasarray[1]) + " , "+ "{0:0.3f}".format(ppm_gasarray[2])+ " , "+ "{0:0.3f}".format(ppm_gasarray[3])+ " , "+ "{0:0.3f}".format(ppm_gasarray[4])+ " , " + "{0:0.3f}".format(ppm_gasarray[5])+ " , ")
-            
-    else:
-        log =open("/home/pi/Desktop/gas_sensor_files/log.csv","a") 
-        log.write("NAN   "+ ",")
-            
-    log.write(datetime.today().strftime("%m-%d-%Y %H:%M:%S")+ "\n")
-    log.close()
-    sleep(0.1)
-    
+
+     #=============LOG==============   
+
+    csv_log(ppm_gasarray)
+
     GL_CO.after(100, screen_display)
+#================= MACHINE LEARNING START ==================================
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.font_manager
+from sklearn.model_selection import  train_test_split
+from sklearn.ensemble import IsolationForest
+
+fileName = "ppm.csv"
+names =['CO', 'Toluene', 'Ammonia','Methane', 'Ethanol', 'Isobutane'] 
+
+def machine_learning():
     
+    dataset = pd.read_csv("ppm.csv") 
+
+    array = dataset.values 
+    Xar = array [0:,1:7]
+    Xar1 = array [0:,1:2]
+    Xar2 = array [0:,2:3]
+    Xar3 = array [0:,3:4]
+    Xar4 = array [0:,4:5]
+    Xar5 = array [0:,5:6]
+    Xar6 = array [0:,6:7]
+
+    print(Xar)
+
+#========== MODEL IS TRAINING PART==========================
+    X = Xar
+
+    model = IsolationForest(n_estimators=500,  max_samples=300, contamination=0.01, random_state=42)
+    model.fit(X)  # fit 10 trees  
+    #number = model.predict(X)  # fit the added trees
+
+    print ("YEHEY! Training Complete")
+
+
+    import pickle 
+    fileName = 'model_test.pkl ' 
+    pickle.dump(model, open(fileName, 'wb'))
+    print ("Model  is saved!")
+    loaded_model = pickle.load (open(fileName, 'rb')) 
+    number1 = loaded_model.predict(X)
+
+    y = array [0:,7:8]
+    print(y)
+    plt.scatter(number1,Xar1)
+    plt.axis('tight')
+    #plt.show()
+#================= MACHINE LEARNING END ==================================
+
+#================= START ISOLATION FOREST ==================================
+    fileName = "ppm.csv"
+    names =['CO', 'Toluene', 'Ammonia','Methane', 'Ethanol', 'Isobutane'] 
+
+    fileName = 'model_test.pkl ' 
+    loaded_model = pickle.load (open(fileName, 'rb')) 
+    value = [[1.109,3.393,10.191,21.414,200.995,100.598]] #insert prediction static values
+    predictions = loaded_model.predict(value)
+    print (predictions)
+    
+#================= ISOLATION FOREST END ==================================
+
+#================= START GUI (UI DISPLAY) ==================================   
 root = Tk()
 root.title("Gas Sensor GUI")
 root.geometry("480x320")
 
 windowTitle = Label(root, text="IED E-Nose System", fg='red', font=('calibri', 30), anchor ="center").grid(row=0, column=2, columnspan=2)
-
 
 GASLEVEL = Label(root, text="GAS LEVEL: ", fg="green", font=('calibri', 20))
 GASLEVEL.grid(row=7, column=2)
@@ -234,6 +305,10 @@ GL_Ethanol=Label(root, text= 0, fg='blue', font=('calibri', 12)).grid(row=5, col
 GL_Isobutane=Label(root, text= 0, fg='blue', font=('calibri', 12)).grid(row=6, column=3)
 GL_CO.after(500, screen_display)
         
-#for clean up exit
+###### FOR CLEAN UP ##########
 root.protocol("WM_DELETE_WINDOW", close_window)
-root.mainloop()    
+root.mainloop()
+
+#================= END GUI (UI DISPLAY) ==================================
+
+

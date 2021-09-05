@@ -18,7 +18,7 @@ i2c =busio.I2C(board.SCL,board.SDA)
 ads = ADS.ADS1115(i2c)
 chan = AnalogIn(ads,ADS.P0)
 
-Ro_Value = np.loadtxt("/home/pi/Desktop/Ro_values.csv", delimiter=",")
+Ro_Value = np.loadtxt("/home/pi/Desktop/gas_sensor_files/Ro_values.csv", delimiter=",")
 print("New file", Ro_Value)
 
 TGS_2600 = 1 #use to declare sensor type
@@ -47,7 +47,7 @@ RL_2611 = 4700 #in ohm RL min
 Ro_2611 = Ro_Value[2] #in Ohm
 Ro_factor_2611 = 9
 gas_methane = np.array([5090.43, -2.26059], dtype=float)
-gas_isobutane = np.array([5090.43, -2.26059], dtype=float) #Add data here later
+gas_isobutane = np.array([24919.3, -2.72606], dtype=float) #Add data here later
 #================= TGS-2620 Definition =================
 RL_2620 = 4700 #in ohm RL min
 Ro_2620 = Ro_Value[3] #in Ohm
@@ -63,7 +63,7 @@ def Calibration_sensor_read():
     Ro_read[2] = rs_read_sensor (TGS_2611, Vc, RL_2611, Calib_time_interval, Calib_iteration) #Rs_read_2611
     Ro_read[3] = rs_read_sensor (TGS_2620, Vc, RL_2620, Calib_time_interval, Calib_iteration) #Rs_read_2620
     np.savetxt("/home/pi/Desktop/Ro_values.csv", Ro_read, delimiter=",")
-    Ro_Value = np.loadtxt("/home/pi/Desktop/Ro_values.csv", delimiter=",")
+    Ro_Value = np.loadtxt("/home/pi/Desktop/gas_sensor_files/Ro_values.csv", delimiter=",")
     print("New Ro Values", Ro_Value)
 
 #================= RS CALCULATION =================
@@ -164,14 +164,16 @@ def screen_display():
     GL_Ethanol=Label(root, text= raw_Ethanol, fg='blue', font=('calibri', 12), anchor='center')
     GL_Ethanol.grid(row=5, column=3)
     GL_Isobutane=Label(root, text= raw_Isobutane, fg='blue', font=('calibri', 12), anchor='center')
-    GL_Isobutane.grid(row=5, column=3)
+    GL_Isobutane.grid(row=6, column=3)
     
     forceRefreshbtn = Button(root, width=20, borderwidth=5, height= 2, text="CALIBRATION", command= Calibration_sensor_read, fg="black", font=('calibri', 10), bg="yellow")
     forceRefreshbtn.grid(row=8, column=2)
     
     
     firebase_data = firebase.FirebaseApplication("https://gassensor-db-default-rtdb.firebaseio.com/", None)
-
+    
+    
+    
     data = {
         'Ammonia': raw_Ammonia,
         'CO': raw_CO,
@@ -179,20 +181,20 @@ def screen_display():
         'Isobutane': raw_Isobutane,
         'Methane': raw_Methane,
         'Toluene': raw_Toluene,
-        'X_Timestamp': datetime.today().strftime("%m-%d-%Y %H:%M:%S")
+        'H_Timestamp': datetime.today().strftime("%H"),
+        'M_Timestamp': datetime.today().strftime("%M"),
+        'Gas_Status': 0
             }
-
-    result = firebase_data.post('/gassensor-db-default-rtdb/gasdata:', data)
-    print(result)
-    get_result = firebase_data.get('/gassensor-db-default-rtdb/gasdata:', '')
-    print(get_result)
     
+    result = firebase_data.put('/gassensor-db-default-rtdb/gasdata:',"-MhvYPVvC3476qBwCADx", data)
+    print(result)
+        
     if ppm_gasarray[0] is not None and ppm_gasarray[1] is not None and ppm_gasarray[2] is not None and ppm_gasarray[3] is not None and ppm_gasarray[4] is not None and ppm_gasarray[5] is not None:
-        log = open("/home/pi/Desktop/log.csv","a")  
-        log.write("V" + " , " +"{0:0.3f}".format(volts[0]) +" , "+"{0:0.3f}".format(volts[1]) +" , "+"{0:0.3f}".format(volts[2]) +" , "+"{0:0.3f}".format(volts[3]) +" , " +"RS" + " , " +"{0:0.3f}".format(rs[0]) +" , "+"{0:0.3f}".format(rs[1]) +" , "+"{0:0.3f}".format(rs[2]) +" , "+"{0:0.3f}".format(rs[3]) +" , " + "PPM" +" , " + "{0:0.3f}".format(ppm_gasarray[0]) +" , " + "{0:0.3f}".format(ppm_gasarray[1]) + " , "+ "{0:0.3f}".format(ppm_gasarray[2])+ " , "+ "{0:0.3f}".format(ppm_gasarray[3])+ " , "+ "{0:0.3f}".format(ppm_gasarray[4])+ " , "+ " , "+ "{0:0.3f}".format(ppm_gasarray[5])+ " , ")
+        log = open("/home/pi/Desktop/gas_sensor_files/log.csv","a")  
+        log.write("V" + " , " +"{0:0.3f}".format(volts[0]) +" , "+"{0:0.3f}".format(volts[1]) +" , "+"{0:0.3f}".format(volts[2]) +" , "+"{0:0.3f}".format(volts[3]) +" , " +"RS" + " , " +"{0:0.3f}".format(rs[0]) +" , "+"{0:0.3f}".format(rs[1]) +" , "+"{0:0.3f}".format(rs[2]) +" , "+"{0:0.3f}".format(rs[3]) +" , " + "PPM" +" , " + "{0:0.3f}".format(ppm_gasarray[0]) +" , " + "{0:0.3f}".format(ppm_gasarray[1]) + " , "+ "{0:0.3f}".format(ppm_gasarray[2])+ " , "+ "{0:0.3f}".format(ppm_gasarray[3])+ " , "+ "{0:0.3f}".format(ppm_gasarray[4])+ " , " + "{0:0.3f}".format(ppm_gasarray[5])+ " , ")
             
     else:
-        log =open("/home/pi/Desktop/log.csv","a") 
+        log =open("/home/pi/Desktop/gas_sensor_files/log.csv","a") 
         log.write("NAN   "+ ",")
             
     log.write(datetime.today().strftime("%m-%d-%Y %H:%M:%S")+ "\n")
@@ -235,6 +237,3 @@ GL_CO.after(500, screen_display)
 #for clean up exit
 root.protocol("WM_DELETE_WINDOW", close_window)
 root.mainloop()    
-
-   
-   

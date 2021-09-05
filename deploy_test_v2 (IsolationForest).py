@@ -7,10 +7,11 @@ import matplotlib.pyplot as plt
 import matplotlib.font_manager
 from sklearn.model_selection import  train_test_split
 from sklearn.ensemble import IsolationForest
+
+
 fileName = "ppm.csv"
 
 names =['CO', 'Toluene', 'Ammonia','Methane', 'Ethanol', 'Isobutane'] 
-
 
 import pickle 
 fileName = 'mode_test3.pkl ' 
